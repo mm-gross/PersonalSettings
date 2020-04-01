@@ -55,11 +55,14 @@ set wildmenu
  
 " Show partial commands in the last line of the screen
 set showcmd
+
+"set cursorline
  
 " Highlight searches (use <C-L> to temporarily turn off highlighting; see the
 " mapping of <C-L> below)
 set hlsearch
- 
+set incsearch
+
 " Modelines have historically been a source of security vulnerabilities. As
 " such, it may be a good idea to disable them and use the securemodelines
 " script, <http://www.vim.org/scripts/script.php?script_id=1876>.
