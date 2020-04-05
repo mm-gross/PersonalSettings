@@ -45,7 +45,7 @@ if [ -f /etc/bashrc ]; then
       . /etc/bashrc   # --> Read /etc/bashrc, if present.
 fi
 
-
+ 
 #--------------------------------------------------------------
 #  Automatic setting of $DISPLAY (if not set already).
 #  This works for me - your mileage may vary. . . .
@@ -95,7 +95,7 @@ alias debug="set -o nounset; set -o xtrace"
 ulimit -S -c 0      # Don't want coredumps.
 set -o notify
 set -o noclobber
-set -o ignoreeof
+#set -o ignoreeof
 
 
 # Enable options:
@@ -161,8 +161,7 @@ ALERT=${BWhite}${On_Red} # Bold White on red background
 
 
 
-echo -e "${BCyan}This is BASH ${BRed}${BASH_VERSION%.*}${BCyan}\
-- DISPLAY on ${BRed}$DISPLAY${NC}\n"
+echo -e "${BCyan}This is BASH ${BRed}${BASH_VERSION%.*}${BCyan}${NC}\n"
 date
 if [ -x /usr/games/fortune ]; then
     /usr/games/fortune -s     # Makes our day a bit more fun.... :-)
@@ -228,58 +227,6 @@ else
     SU=${BCyan}         # User is normal (well ... most of us are).
 fi
 
-
-
-NCPU=$(grep -c 'processor' /proc/cpuinfo)    # Number of CPUs
-SLOAD=$(( 100*${NCPU} ))        # Small load
-MLOAD=$(( 200*${NCPU} ))        # Medium load
-XLOAD=$(( 400*${NCPU} ))        # Xlarge load
-
-# Returns system load as percentage, i.e., '40' rather than '0.40)'.
-function load()
-{
-    local SYSLOAD=$(cut -d " " -f1 /proc/loadavg | tr -d '.')
-    # System load of the current host.
-    echo $((10#$SYSLOAD))       # Convert to decimal.
-}
-
-# Returns a color indicating system load.
-function load_color()
-{
-    local SYSLOAD=$(load)
-    if [ ${SYSLOAD} -gt ${XLOAD} ]; then
-        echo -en ${ALERT}
-    elif [ ${SYSLOAD} -gt ${MLOAD} ]; then
-        echo -en ${Red}
-    elif [ ${SYSLOAD} -gt ${SLOAD} ]; then
-        echo -en ${BRed}
-    else
-        echo -en ${Green}
-    fi
-}
-
-# Returns a color according to free disk space in $PWD.
-function disk_color()
-{
-    if [ ! -w "${PWD}" ] ; then
-        echo -en ${Red}
-        # No 'write' privilege in the current directory.
-    elif [ -s "${PWD}" ] ; then
-        local used=$(command df -P "$PWD" |
-                   awk 'END {print $5} {sub(/%/,"")}')
-        if [ ${used} -gt 95 ]; then
-            echo -en ${ALERT}           # Disk almost full (>95%).
-        elif [ ${used} -gt 90 ]; then
-            echo -en ${BRed}            # Free disk space almost gone.
-        else
-            echo -en ${Green}           # Free disk space is ok.
-        fi
-    else
-        echo -en ${Cyan}
-        # Current directory is size '0' (like /proc, /sys etc).
-    fi
-}
-
 # Returns a color according to running/suspended jobs.
 function job_color()
 {
@@ -287,6 +234,8 @@ function job_color()
         echo -en ${BRed}
     elif [ $(jobs -r | wc -l) -gt "0" ] ; then
         echo -en ${BCyan}
+    else
+        echo -en ${Green}
     fi
 }
 
@@ -296,16 +245,13 @@ function job_color()
 # Now we construct the prompt.
 PROMPT_COMMAND="history -a"
 case ${TERM} in
-  *term | rxvt | linux)
-        PS1="\[\$(load_color)\][\A\[${NC}\] "
-        # Time of day (with load info):
-        PS1="\[\$(load_color)\][\A\[${NC}\] "
+  *term* | rxvt | linux)
         # User@Host (with connection type info):
-        PS1=${PS1}"\[${SU}\]\u\[${NC}\]@\[${CNX}\]\h\[${NC}\] "
+        PS1="\[${SU}\]\u\[${NC}\]@\[${CNX}\]\h\[${NC}\] "
         # PWD (with 'disk space' info):
-        PS1=${PS1}"\[\$(disk_color)\]\W]\[${NC}\] "
+        PS1=${PS1}"\[${Green}\]\W]\[${NC}\] "
         # Prompt (with 'job' info):
-        PS1=${PS1}"\[\$(job_color)\]>\[${NC}\] "
+        PS1=${PS1}"\[\$(job_color)\]\$\[${NC}\] "
         # Set title of current xterm:
         PS1=${PS1}"\[\e]0;[\u@\h] \w\a\]"
         ;;
@@ -330,7 +276,7 @@ export HOSTFILE=$HOME/.hosts    # Put a list of remote hosts in ~/.hosts
 #
 #  Arguably, some functions defined here are quite big.
 #  If you want to make this file smaller, these functions can
-#+ be converted into scripts and removed from here.
+#  be converted into scripts and removed from here.
 #
 #============================================================
 
@@ -361,7 +307,7 @@ alias df='df -kTh'
 # The 'ls' family (this assumes you use a recent GNU ls).
 #-------------------------------------------------------------
 # Add colors for filetype and  human-readable sizes by default on 'ls':
-alias ls='ls -h --color'
+alias ls='ls -h -G'
 alias lx='ls -lXB'         #  Sort by extension.
 alias lk='ls -lSr'         #  Sort by size, biggest last.
 alias lt='ls -ltr'         #  Sort by date, most recent last.
@@ -369,10 +315,10 @@ alias lc='ls -ltcr'        #  Sort by/show change time,most recent last.
 alias lu='ls -ltur'        #  Sort by/show access time,most recent last.
 
 # The ubiquitous 'll': directories first, with alphanumeric sorting:
-alias ll="ls -lv --group-directories-first"
+alias ll="ls -lv"
 alias lm='ll |more'        #  Pipe through 'more'
 alias lr='ll -R'           #  Recursive ls.
-alias la='ll -A'           #  Show hidden files.
+alias la='ll -a'           #  Show hidden files.
 alias tree='tree -Csuh'    #  Nice alternative to 'recursive ls' ...
 
 
@@ -591,13 +537,6 @@ function mydf()         # Pretty-print of 'df' output.
     done
 }
 
-
-function my_ip() # Get IP adress on ethernet.
-{
-    MY_IP=$(/sbin/ifconfig eth0 | awk '/inet/ { print $2 } ' |
-      sed -e s/addr://)
-    echo ${MY_IP:-"Not connected"}
-}
 
 function ii()   # Get current host related info.
 {
