@@ -1,38 +1,29 @@
 # =============================================================== #
 #
-# PERSONAL $HOME/.bashrc FILE for bash-3.0 (or later)
-# By Emmanuel Rouat [no-email]
+# This is a peronalized $HOME/.bashrc FILE for bash-3.0 (or later)
+# on Mac OS. On Mac OS, usually bash 3.2 is installed, I recommend
+# installing the newest version from homebrew or macports.
 #
-# Last modified: Tue Nov 20 22:04:47 CET 2012
-
+# Author: Marc Groß
+# E-Mail: marc@marc-gross.de
+#
 #  This file is normally read by interactive shells only.
-#+ Here is the place to define your aliases, functions and
-#+ other interactive features like your prompt.
+#  Here is the place to define your aliases, functions and
+#  other interactive features like your prompt.
 #
-#  The majority of the code here assumes you are on a GNU
-#+ system (most likely a Linux box) and is often based on code
-#+ found on Usenet or Internet.
-#
-#  See for instance:
-#  http://tldp.org/LDP/abs/html/index.html
-#  http://www.caliban.org/bash
-#  http://www.shelldorado.com/scripts/categories.html
-#  http://www.dotfiles.org
 #
 #  The choice of colors was done for a shell with a dark background
-#+ (white on black), and this is usually also suited for pure text-mode
-#+ consoles (no X server available). If you use a white background,
-#+ you'll have to do some other choices for readability.
-#
-#  This bashrc file is a bit overcrowded.
-#  Remember, it is just just an example.
-#  Tailor it to your needs.
+#  (white on black), and this is usually also suited for pure text-mode
+#  consoles (no X server available). If you use a white background,
+#  you'll have to do some other choices for readability.
 #
 # =============================================================== #
 
-# --> Comments added by HOWTO author.
 
+#-------------------------------------------------------------
 # If not running interactively, don't do anything
+#-------------------------------------------------------------
+
 [ -z "$PS1" ] && return
 
 
@@ -40,49 +31,10 @@
 # Source global definitions (if any)
 #-------------------------------------------------------------
 
-
 if [ -f /etc/bashrc ]; then
       . /etc/bashrc   # --> Read /etc/bashrc, if present.
 fi
 
- 
-#--------------------------------------------------------------
-#  Automatic setting of $DISPLAY (if not set already).
-#  This works for me - your mileage may vary. . . .
-#  The problem is that different types of terminals give
-#+ different answers to 'who am i' (rxvt in particular can be
-#+ troublesome) - however this code seems to work in a majority
-#+ of cases.
-#--------------------------------------------------------------
-
-function get_xserver ()
-{
-    case $TERM in
-        xterm )
-            XSERVER=$(who am i | awk '{print $NF}' | tr -d ')''(' )
-            # Ane-Pieter Wieringa suggests the following alternative:
-            #  I_AM=$(who am i)
-            #  SERVER=${I_AM#*(}
-            #  SERVER=${SERVER%*)}
-            XSERVER=${XSERVER%%:*}
-            ;;
-            aterm | rxvt)
-            # Find some code that works here. ...
-            ;;
-    esac
-}
-
-if [ -z ${DISPLAY:=""} ]; then
-    get_xserver
-    if [[ -z ${XSERVER}  || ${XSERVER} == $(hostname) ||
-       ${XSERVER} == "unix" ]]; then
-          DISPLAY=":0.0"          # Display on local host.
-    else
-       DISPLAY=${XSERVER}:0.0     # Display on remote host.
-    fi
-fi
-
-export DISPLAY
 
 #-------------------------------------------------------------
 # Some settings
@@ -246,9 +198,11 @@ if [ -f /Library/Developer/CommandLineTools/usr/share/git-core/git-prompt.sh ]; 
     . /Library/Developer/CommandLineTools/usr/share/git-core/git-prompt.sh
 fi
 
-export GIT_PS1_SHOWDIRTYSTATE=1
-export GIT_PS1_SHOWCOLORHINTS=1
-export GIT_PS1_SHOWUNTRACKEDFILES=1
+GIT_PS1_SHOWDIRTYSTATE=1
+GIT_PS1_SHOWCOLORHINTS=1
+GIT_PS1_SHOWUNTRACKEDFILES=1
+GIT_PS1_SHOWUPSTREAM="auto"
+
 
 __git_branch=$(__git_ps1)
 __git_branch_color=${Green}
@@ -258,7 +212,7 @@ if [[ "${__git_branch}" =~ "*" ]]; then     # if repository is dirty
   fi
 
 # Now we construct the prompt.
-PROMPT_COMMAND="history -a"
+PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND; }history -a"
 case ${TERM} in
   *term* | rxvt | linux)
         # User@Host (with connection type info):
@@ -270,7 +224,7 @@ case ${TERM} in
         # Prompt (with 'job' info):
         PS1=${PS1}"\[\$(job_color)\]\$\[${NC}\] "
         # Set title of current xterm:
-        PS1=${PS1}"\[\e]0;[\u@\h] \w\a\]"
+#        PS1=${PS1}"\[\e]0;[\u@\h] \w\a\]"
         ;;
     *)
         PS1="(\A \u@\h \W) > " # --> PS1="(\A \u@\h \w) > "
