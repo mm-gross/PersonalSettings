@@ -242,6 +242,21 @@ function job_color()
 # Adds some text in the terminal frame (if applicable).
 
 
+if [ -f /Library/Developer/CommandLineTools/usr/share/git-core/git-prompt.sh ]; then
+    . /Library/Developer/CommandLineTools/usr/share/git-core/git-prompt.sh
+fi
+
+export GIT_PS1_SHOWDIRTYSTATE=1
+export GIT_PS1_SHOWCOLORHINTS=1
+export GIT_PS1_SHOWUNTRACKEDFILES=1
+
+__git_branch=$(__git_ps1)
+__git_branch_color=${Green}
+
+if [[ "${__git_branch}" =~ "*" ]]; then     # if repository is dirty
+      __git_branch_color="${Red}"
+  fi
+
 # Now we construct the prompt.
 PROMPT_COMMAND="history -a"
 case ${TERM} in
@@ -249,7 +264,9 @@ case ${TERM} in
         # User@Host (with connection type info):
         PS1="\[${SU}\]\u\[${NC}\]@\[${CNX}\]\h\[${NC}\] "
         # PWD (with 'disk space' info):
-        PS1=${PS1}"\[${Green}\]\W]\[${NC}\] "
+        PS1=${PS1}"\[${Green}\][\W]\[${NC}\] "
+        # git prompt
+        PS1=${PS1}"\[${__git_branch_color}\]\${__git_branch} "
         # Prompt (with 'job' info):
         PS1=${PS1}"\[\$(job_color)\]\$\[${NC}\] "
         # Set title of current xterm:
@@ -601,6 +618,11 @@ if [ "${BASH_VERSION%.*}" \< "3.0" ]; then
     echo "You will need to upgrade to version 3.0 for full \
           programmable completion features"
     return
+fi
+
+
+if [ -f /Library/Developer/CommandLineTools/usr/share/git-core/git-completion.bash ]; then
+      . /Library/Developer/CommandLineTools/usr/share/git-core/git-completion.bash   # --> Read /etc/bashrc, if present.
 fi
 
 shopt -s extglob        # Necessary.
