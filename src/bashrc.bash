@@ -1,69 +1,62 @@
-# =============================================================== #
-#
-# This is a peronalized $HOME/.bashrc FILE for bash-3.0 (or later)
-# on Mac OS. On Mac OS, usually bash 3.2 is installed, I recommend
-# installing the newest version from homebrew or macports.
+# =========================================================================== #
 #
 # Author: Marc Groß
 # E-Mail: marc@marc-gross.de
 #
-#  This file is normally read by interactive shells only.
-#  Here is the place to define your aliases, functions and
-#  other interactive features like your prompt.
+#  This is a peronalized $HOME/.bashrc FILE for bash-4.0 (or later) on Mac OS. 
+#  On Mac OS, usually bash 3.2 is installed, I recommend installing the newest 
+#  version manually or from homebrew or macports.
 #
+#  This file is normally read by interactive shells only. Here is the place to 
+#  define your aliases, functions and other interactive features like your 
+#  prompt.
 #
-#  The choice of colors was done for a shell with a dark background
-#  (white on black), and this is usually also suited for pure text-mode
-#  consoles (no X server available). If you use a white background,
-#  you'll have to do some other choices for readability.
+#  The choice of colors was done for a shell with a dark background 
+#  (white on black), and this is usually also suited for pure text-mode 
+#  consoles (no X server available). If you use a white background, you'll have
+#  to do some other choices for readability.
 #
-# =============================================================== #
+# =========================================================================== #
 
 
-#-------------------------------------------------------------
+#------------------------------------------------------------------------------
 # If not running interactively, don't do anything
-#-------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 [ -z "$PS1" ] && return
+set +a
 
 
-#-------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Source global definitions (if any)
-#-------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 if [ -f /etc/bashrc ]; then
       . /etc/bashrc   # --> Read /etc/bashrc, if present.
 fi
 
 
-#-------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Some settings
-#-------------------------------------------------------------
+#
+# These option can be defined:
+#
+# chatty - Enables some informational output on startup
+# noclobber - Prevent output redirection from overwriting existing files.
+# notify - Report the status of terminated background jobs immediately
+# easylogout - Enable logout with eof (Crtl+D)
+#------------------------------------------------------------------------------
 
-#set -o nounset     # These  two options are useful for debugging.
-#set -o xtrace
-alias debug="set -o nounset; set -o xtrace"
-
-ulimit -S -c 0      # Don't want coredumps.
-set -o notify
-set -o noclobber
-#set -o ignoreeof
+declare -A _BASHRC_OPTION
 
 
-# Enable options:
-shopt -s cdspell
-shopt -s cdable_vars
-shopt -s checkhash
-shopt -s checkwinsize
-shopt -s sourcepath
-shopt -s no_empty_cmd_completion
-shopt -s cmdhist
-shopt -s histappend histreedit histverify
-shopt -s extglob       # Necessary for programmable completion.
+_BASHRC_OPTION["chatty"]=true
+_BASHRC_OPTION["noclobber"]=true
+_BASHRC_OPTION["notify"]=true
+_BASHRC_OPTION["easylogout"]=true
 
-# Disable options:
-shopt -u mailwarn
-unset MAILCHECK        # Don't want my shell to warn me of incoming mail.
+
+
 
 
 #-------------------------------------------------------------
@@ -76,47 +69,20 @@ unset MAILCHECK        # Don't want my shell to warn me of incoming mail.
 # hence the 'Green' 'BRed' 'Red' sequence I often use in my prompt.
 
 
-# Normal Colors
-Black='\e[0;30m'        # Black
-Red='\e[0;31m'          # Red
-Green='\e[0;32m'        # Green
-Yellow='\e[0;33m'       # Yellow
-Blue='\e[0;34m'         # Blue
-Purple='\e[0;35m'       # Purple
-Cyan='\e[0;36m'         # Cyan
-White='\e[0;37m'        # White
+if [ -f ~/.bashrc_folder/colors.bash ]; then
+    . ~/.bashrc_folder/colors.bash
+fi
 
-# Bold
-BBlack='\e[1;30m'       # Black
-BRed='\e[1;31m'         # Red
-BGreen='\e[1;32m'       # Green
-BYellow='\e[1;33m'      # Yellow
-BBlue='\e[1;34m'        # Blue
-BPurple='\e[1;35m'      # Purple
-BCyan='\e[1;36m'        # Cyan
-BWhite='\e[1;37m'       # White
+if [ -f ~/.bashrc_folder/greeting.bash ]; then
+    . ~/.bashrc_folder/greeting.bash
+fi
 
-# Background
-On_Black='\e[40m'       # Black
-On_Red='\e[41m'         # Red
-On_Green='\e[42m'       # Green
-On_Yellow='\e[43m'      # Yellow
-On_Blue='\e[44m'        # Blue
-On_Purple='\e[45m'      # Purple
-On_Cyan='\e[46m'        # Cyan
-On_White='\e[47m'       # White
+if [ -f ~/.bashrc_folder/options.bash ]; then
+    . ~/.bashrc_folder/options.bash
+fi
 
-NC="\e[m"               # Color Reset
-
-
-ALERT=${BWhite}${On_Red} # Bold White on red background
-
-
-
-echo -e "${BCyan}This is BASH ${BRed}${BASH_VERSION%.*}${BCyan}${NC}\n"
-date
-if [ -x /usr/games/fortune ]; then
-    /usr/games/fortune -s     # Makes our day a bit more fun.... :-)
+if [ -f ~/.bashrc_folder/prompt.bash ]; then
+    . ~/.bashrc_folder/prompt.bash
 fi
 
 function _exit()              # Function to run upon exit of shell.
@@ -125,112 +91,6 @@ function _exit()              # Function to run upon exit of shell.
 }
 trap _exit EXIT
 
-#-------------------------------------------------------------
-# Shell Prompt - for many examples, see:
-#       http://www.debian-administration.org/articles/205
-#       http://www.askapache.com/linux/bash-power-prompt.html
-#       http://tldp.org/HOWTO/Bash-Prompt-HOWTO
-#       https://github.com/nojhan/liquidprompt
-#-------------------------------------------------------------
-# Current Format: [TIME USER@HOST PWD] >
-# TIME:
-#    Green     == machine load is low
-#    Orange    == machine load is medium
-#    Red       == machine load is high
-#    ALERT     == machine load is very high
-# USER:
-#    Cyan      == normal user
-#    Orange    == SU to user
-#    Red       == root
-# HOST:
-#    Cyan      == local session
-#    Green     == secured remote connection (via ssh)
-#    Red       == unsecured remote connection
-# PWD:
-#    Green     == more than 10% free disk space
-#    Orange    == less than 10% free disk space
-#    ALERT     == less than 5% free disk space
-#    Red       == current user does not have write privileges
-#    Cyan      == current filesystem is size zero (like /proc)
-# >:
-#    White     == no background or suspended jobs in this shell
-#    Cyan      == at least one background job in this shell
-#    Orange    == at least one suspended job in this shell
-#
-#    Command is added to the history file each time you hit enter,
-#    so it's available to all shells (using 'history -a').
-
-
-# Test connection type:
-if [ -n "${SSH_CONNECTION}" ]; then
-    CNX=${Green}        # Connected on remote machine, via ssh (good).
-elif [[ "${DISPLAY%%:0*}" != "" ]]; then
-    CNX=${ALERT}        # Connected on remote machine, not via ssh (bad).
-else
-    CNX=${BCyan}        # Connected on local machine.
-fi
-
-# Test user type:
-if [[ ${USER} == "root" ]]; then
-    SU=${Red}           # User is root.
-elif [[ ${USER} != $(logname) ]]; then
-    SU=${BRed}          # User is not login user.
-else
-    SU=${BCyan}         # User is normal (well ... most of us are).
-fi
-
-# Returns a color according to running/suspended jobs.
-function job_color()
-{
-    if [ $(jobs -s | wc -l) -gt "0" ]; then
-        echo -en ${BRed}
-    elif [ $(jobs -r | wc -l) -gt "0" ] ; then
-        echo -en ${BCyan}
-    else
-        echo -en ${Green}
-    fi
-}
-
-# Adds some text in the terminal frame (if applicable).
-
-
-if [ -f /Library/Developer/CommandLineTools/usr/share/git-core/git-prompt.sh ]; then
-    . /Library/Developer/CommandLineTools/usr/share/git-core/git-prompt.sh
-fi
-
-GIT_PS1_SHOWDIRTYSTATE=1
-GIT_PS1_SHOWCOLORHINTS=1
-GIT_PS1_SHOWUNTRACKEDFILES=1
-GIT_PS1_SHOWUPSTREAM="auto"
-
-
-__git_branch=$(__git_ps1)
-__git_branch_color=${Green}
-
-if [[ "${__git_branch}" =~ "*" ]]; then     # if repository is dirty
-      __git_branch_color="${Red}"
-  fi
-
-# Now we construct the prompt.
-PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND; }history -a"
-case ${TERM} in
-  *term* | rxvt | linux)
-        # User@Host (with connection type info):
-        PS1="\[${SU}\]\u\[${NC}\]@\[${CNX}\]\h\[${NC}\] "
-        # PWD (with 'disk space' info):
-        PS1=${PS1}"\[${Green}\][\W]\[${NC}\] "
-        # git prompt
-        PS1=${PS1}"\[${__git_branch_color}\]\${__git_branch} "
-        # Prompt (with 'job' info):
-        PS1=${PS1}"\[\$(job_color)\]\$\[${NC}\] "
-        # Set title of current xterm:
-#        PS1=${PS1}"\[\e]0;[\u@\h] \w\a\]"
-        ;;
-    *)
-        PS1="(\A \u@\h \W) > " # --> PS1="(\A \u@\h \w) > "
-                               # --> Shows full pathname of current dir.
-        ;;
-esac
 
 
 
