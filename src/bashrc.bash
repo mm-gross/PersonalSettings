@@ -1,42 +1,42 @@
-# =========================================================================== #
+# ======================================================================== #
 #
 # Author: Marc Groß
 # E-Mail: marc@marc-gross.de
 #
-#  This is a peronalized $HOME/.bashrc FILE for bash-4.0 (or later) on Mac OS. 
-#  On Mac OS, usually bash 3.2 is installed, I recommend installing the newest 
-#  version manually or from homebrew or macports.
+#  This is a peronalized $HOME/.bashrc FILE for bash-4.0 (or later) on 
+#  Mac OS. On Mac OS, usually bash 3.2 is installed, I recommend installing
+#  the newest version manually or from homebrew or macports.
 #
-#  This file is normally read by interactive shells only. Here is the place to 
-#  define your aliases, functions and other interactive features like your 
-#  prompt.
+#  This file is normally read by interactive shells only. Here is the place
+#  to define your aliases, functions and other interactive features like 
+#  your prompt.
 #
 #  The choice of colors was done for a shell with a dark background 
 #  (white on black), and this is usually also suited for pure text-mode 
-#  consoles (no X server available). If you use a white background, you'll have
-#  to do some other choices for readability.
+#  consoles (no X server available). If you use a white background, you'll 
+#  have to do some other choices for readability.
 #
-# =========================================================================== #
+# ======================================================================== #
 
 
-#------------------------------------------------------------------------------
+#---------------------------------------------------------------------------
 # If not running interactively, don't do anything
-#------------------------------------------------------------------------------
+#---------------------------------------------------------------------------
 
 [ -z "$PS1" ] && return
 set +a
 
 
-#------------------------------------------------------------------------------
+#---------------------------------------------------------------------------
 # Source global definitions (if any)
-#------------------------------------------------------------------------------
+#---------------------------------------------------------------------------
 
 if [ -f /etc/bashrc ]; then
       . /etc/bashrc   # --> Read /etc/bashrc, if present.
 fi
 
 
-#------------------------------------------------------------------------------
+#---------------------------------------------------------------------------
 # Some settings
 #
 # These option can be defined:
@@ -45,7 +45,7 @@ fi
 # noclobber - Prevent output redirection from overwriting existing files.
 # notify - Report the status of terminated background jobs immediately
 # easylogout - Enable logout with eof (Crtl+D)
-#------------------------------------------------------------------------------
+#---------------------------------------------------------------------------
 
 declare -A _BASHRC_OPTION
 
