@@ -49,12 +49,13 @@ __git_prompt() {
 #    __git_branch_color=${Green}
 __git_branch_color() {
     __git_branch=$(__git_ps1)
+    local gitColor='green'
     if [[ "${__git_branch}" =~ "*" ]]; then     # if repository is dirty
-          echo -en ${Red}
-    else
-        echo -en ${Green}
+        gitColor='red'
+    elif [[ "${__git_branch}" =~ "+" ]]; then  
+        gitColor='orange'
     fi
-    #export ${__git_branch_color}
+    echo -n $(color $gitColor)
 }
 #}
 
@@ -65,7 +66,7 @@ case ${TERM} in
         # User@Host (with connection type info):
         PS1="\u\[${NC}\] "
         # PWD (with 'disk space' info):
-        PS1=${PS1}"\[${Cyan}\][\W]\[${NC}\] "
+        PS1=${PS1}"\[$(color 'cyan')\][\W]\[${NC}\] "
         # git prompt
         PS1=${PS1}"\[\$(__git_branch_color)\]\${__git_branch} "
         # Prompt (with 'job' info):

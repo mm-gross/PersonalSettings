@@ -1,4 +1,3 @@
-
 function color() (
     function colorCode() {
         declare -i code=16
@@ -97,8 +96,6 @@ function color() (
     done
 
 )
-
-echo $(color "bold light blue on dark orange");
 
 # Normal Colors
 Black='\e[0;30m'        # Black
