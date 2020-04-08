@@ -1,44 +1,78 @@
 
-function color() {
+function color() (
+    function colorCode() {
+        declare -i code=16
+        declare -i internalCode=$1
+        let "code += internalCode / 100 * 36"
+        let "internalCode %= 100"
+        let "code += internalCode / 10 * 6"
+        let "code += internalCode % 10"
+        echo -ne $code
+    }
+
+    function dark() {
+        declare -i original=$1
+        declare -i modified=0
+        let "modified += original / 200 * 100"
+        let "original %= 100"
+        let "modified += original / 20 * 10"
+        let "original %= 10"
+        let "modified += original / 2"
+        echo -ne $modified
+    }
+
+    function light() {
+        declare -i original=$1
+        declare -i modified=0
+        let "modified += ( 5 - ( 5 - original / 100 ) / 2 ) * 100"
+        let "original %= 100"
+        let "modified += ( 5 - ( 5 - original / 10 ) / 2 ) * 10"
+        let "original %= 10"
+        let "modified += ( 5 - ( 5 - original ) / 2 )"
+        echo -ne $modified
+    }
+
     declare -A colors
     colors["black"]=0
-    colors["white"]=15
-    colors["gray"]=8
-    colors["lightgray"]=7
+    colors["white"]=555
+    colors["gray"]=333
+#    colors["lightgray"]=7
 
-    colors["red"]=9
-    colors["green"]=10
-    colors["yellow"]=11
-    colors["blue"]=12
-    colors["magenta"]=13
-    colors["cyan"]=14
+    colors["red"]=500
+    colors["green"]=050
+    colors["yellow"]=550
+    colors["blue"]=005
+    colors["magenta"]=505
+    colors["cyan"]=055
 
-    colors["darkred"]=88
-    colors["darkgreen"]=28
-    colors["darkyellow"]=100
-    colors["darkblue"]=18
-    colors["darkmagenta"]=90
-    colors["darkcyan"]=30
+#    colors["darkred"]=88
+#    colors["darkgreen"]=28
+#    colors["darkyellow"]=100
+#    colors["darkblue"]=18
+#    colors["darkmagenta"]=90
+#    colors["darkcyan"]=30
 
-    colors["lightred"]=210
-    colors["lightgreen"]=120
-    colors["lightyellow"]=228
-    colors["lightblue"]=105
-    colors["lightmagenta"]=213
-    colors["lightcyan"]=123
+#    colors["lightred"]=210
+#    colors["lightgreen"]=120
+#    colors["lightyellow"]=228
+#    colors["lightblue"]=105
+#    colors["lightmagenta"]=213
+#    colors["lightcyan"]=123
 
-    colors["orangeu"]=208
+    colors["orange"]=530
 
     for k in "${!colors[@]}"
     do
-        echo -e "\\033[01;38;5;${colors[$k]}m$k\\033[0m"
+        echo -e "\\033[01;38;5;$(colorCode ${colors[$k]})m$k\\033[0m"
+        echo -e "\\033[01;38;5;$(colorCode $(dark ${colors[$k]}))mdark $k\\033[0m"
+        echo -e "\\033[01;38;5;$(colorCode $(light ${colors[$k]}))mlight $k\\033[0m"
     done
 
     local fg=$(echo $1 | cut -f1 -d\ )
     if [ "$(echo $1 | cut -f2 -d\ )" == "on" ]; then
         local bg=$(echo $1 | cut -f3 -d\ )
     fi
-}
+)
 
 # Normal Colors
 Black='\e[0;30m'        # Black
