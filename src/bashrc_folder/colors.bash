@@ -33,46 +33,72 @@ function color() (
     }
 
     declare -A colors
-    colors["black"]=0
-    colors["white"]=555
-    colors["gray"]=333
-#    colors["lightgray"]=7
+    colors=(
+        ["black"]=0
+        ["white"]=555
+        ["gray"]=333
 
-    colors["red"]=500
-    colors["green"]=050
-    colors["yellow"]=550
-    colors["blue"]=005
-    colors["magenta"]=505
-    colors["cyan"]=055
+        ["red"]=500
+        ["green"]=050
+        ["yellow"]=550
+        ["blue"]=005
+        ["magenta"]=505
+        ["cyan"]=055
+        ["orange"]=530
+    )
 
-#    colors["darkred"]=88
-#    colors["darkgreen"]=28
-#    colors["darkyellow"]=100
-#    colors["darkblue"]=18
-#    colors["darkmagenta"]=90
-#    colors["darkcyan"]=30
+    declare -A modifiers 
+    modifiers=(
+        ["light"]=1 
+        ["dark"]=2
+    )
 
-#    colors["lightred"]=210
-#    colors["lightgreen"]=120
-#    colors["lightyellow"]=228
-#    colors["lightblue"]=105
-#    colors["lightmagenta"]=213
-#    colors["lightcyan"]=123
+    declare -A fontopts
+    fontopts=(
+        ["bold"]=1 
+        ["ulined"]=2
+        ["blinking"]=3
+    )
 
-    colors["orange"]=530
+    IFS=' ' read -ra _commands <<< "$1"
+    
+    local parseMode=0
+    local cOpts=0
 
-    for k in "${!colors[@]}"
-    do
-        echo -e "\\033[01;38;5;$(colorCode ${colors[$k]})m$k\\033[0m"
-        echo -e "\\033[01;38;5;$(colorCode $(dark ${colors[$k]}))mdark $k\\033[0m"
-        echo -e "\\033[01;38;5;$(colorCode $(light ${colors[$k]}))mlight $k\\033[0m"
+    for i in "${_commands[@]}"; do
+        if [[ -n "${fontopts[$i]}" && $parseMode -lt 1 ]]; then
+            case ${fontopts[$i]} in
+                1) echo -ne $(tput bold);;
+                2) echo -ne $(tput smul);;
+                3) echo -ne $(tput blink);;
+            esac
+            parseMode=1
+        elif [[ -n "${modifiers[$i]}" && $parseMode -lt 2 ]]; then
+            cOpts+=${modifiers[$i]}
+            parseMode=2
+        elif [[ -n "${colors[$i]}" && $parseMode -lt 3 ]]; then
+            declare -i tcc=${colors[$i]}
+            if [[ "cOpts % 10" -eq 1 ]]; then
+                tcc=$(light $tcc)
+            elif [[ "cOpts % 10" -eq 2 ]]; then
+                tcc=$(dark $tcc)
+            fi
+            if [[ cOpts -lt 10 ]]; then
+                echo -ne $(tput setaf "$(colorCode $tcc)")
+                parseMode=3
+            else
+                echo -ne $(tput setab "$(colorCode $tcc)")
+                parseMode=5
+            fi
+        elif [[ "$i" == "on" && $parseMode -eq 3 ]]; then
+            cOpts=10
+            parseMode=1
+        fi
     done
 
-    local fg=$(echo $1 | cut -f1 -d\ )
-    if [ "$(echo $1 | cut -f2 -d\ )" == "on" ]; then
-        local bg=$(echo $1 | cut -f3 -d\ )
-    fi
 )
+
+echo $(color "bold light blue on dark orange");
 
 # Normal Colors
 Black='\e[0;30m'        # Black
