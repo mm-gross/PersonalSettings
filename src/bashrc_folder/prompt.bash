@@ -40,13 +40,6 @@ export GIT_PS1_SHOWUNTRACKEDFILES=1
 export GIT_PS1_SHOWUPSTREAM="auto"
 
 
-#__git_branch=$(__git_ps1)
-#__git_branch_color=${Green}
-
-__git_prompt() {
-    __git_branch=$(__git_ps1)
-}
-#    __git_branch_color=${Green}
 __git_branch_color() {
     __git_branch=$(__git_ps1)
     local gitColor='green'
@@ -57,10 +50,9 @@ __git_branch_color() {
     fi
     echo -n $(color $gitColor)
 }
-#}
 
 # Now we construct the prompt.
-PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND; }history -a;__git_prompt"
+PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND; }history -a"
 case ${TERM} in
   *term* | rxvt | linux)
         # User@Host (with connection type info):
@@ -68,11 +60,10 @@ case ${TERM} in
         # PWD (with 'disk space' info):
         PS1=${PS1}"\[$(color 'cyan')\][\W]\[${NC}\] "
         # git prompt
-        PS1=${PS1}"\[\$(__git_branch_color)\]\${__git_branch} "
+        PS1=${PS1}"\[\$(__git_branch_color)\]\$(__git_ps1) "
         # Prompt (with 'job' info):
         PS1=${PS1}"\[\$(job_color)\]\$\[${NC}\] "
         # Set title of current xterm:
-#        PS1=${PS1}"\[\e]0;[\u@\h] \w\a\]"
         ;;
     *)
         PS1="(\A \u@\h \W) > " # --> PS1="(\A \u@\h \w) > "
