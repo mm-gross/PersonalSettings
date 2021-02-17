@@ -7,8 +7,9 @@
 # Install .bashrc
 
 # make new bash default shell
-# maybe comprare output of which before and after installing bash to detemine the new bash
-# for the moment we just assume it is /ust/local/bin/bash
+# maybe compare output of which before and after installing bash to 
+# determine the location of the new executable of bash
+# for the moment we just assume it is /usr/local/bin/bash
 
 sudo sh -c "echo /usr/local/bin/bash >> /etc/shells"
 chsh -s /usr/local/bin/bash
