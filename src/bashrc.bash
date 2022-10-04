@@ -3,9 +3,15 @@
 # Author: Marc Groß
 # E-Mail: marc@marc-gross.de
 #
+#  Attributions:
+#  This is based on a bashrc written by Emmanuel Rouart. I took Emmanuels
+#  file and modified it to my needs. You can find the original at
+#  https://tldp.org/LDP/abs/html/sample-bashrc.html
+#
 #  This is a peronalized $HOME/.bashrc FILE for bash-4.0 (or later) on 
 #  Mac OS. On Mac OS, usually bash 3.2 is installed, I recommend installing
 #  the newest version manually or from homebrew or macports.
+#
 #
 #  This file is normally read by interactive shells only. Here is the place
 #  to define your aliases, functions and other interactive features like 
@@ -121,6 +127,8 @@ alias h='history'
 alias j='jobs -l'
 alias which='type -a'
 alias ..='cd ..'
+alias ...='cd ../..'
+alias cd..='cd ..'
 
 # Pretty-print of some PATH variables:
 alias path='echo -e ${PATH//:/\\n}'
@@ -177,8 +185,6 @@ export LESS_TERMCAP_us=$'\E[01;32m'
 
 alias xs='cd'
 alias vf='cd'
-alias moer='more'
-alias moew='more'
 alias kk='ll'
 
 
@@ -212,23 +218,6 @@ function man()
 }
 
 
-#-------------------------------------------------------------
-# Make the following commands run in background automatically:
-#-------------------------------------------------------------
-
-function te()  # wrapper around xemacs/gnuserv
-{
-    if [ "$(gnuclient -batch -eval t 2>&-)" == "t" ]; then
-       gnuclient -q "$@";
-    else
-       ( xemacs "$@" &);
-    fi
-}
-
-function soffice() { command soffice "$@" & }
-function firefox() { command firefox "$@" & }
-function xpdf() { command xpdf "$@" & }
-
 
 #-------------------------------------------------------------
 # File & strings related functions:
@@ -242,34 +231,9 @@ function ff() { find . -type f -iname '*'"$*"'*' -ls ; }
 function fe() { find . -type f -iname '*'"${1:-}"'*' \
 -exec ${2:-file} {} \;  ; }
 
-#  Find a pattern in a set of files and highlight them:
-#+ (needs a recent version of egrep).
-function fstr()
-{
-    OPTIND=1
-    local mycase=""
-    local usage="fstr: find string in files.
-Usage: fstr [-i] \"pattern\" [\"filename pattern\"] "
-    while getopts :it opt
-    do
-        case "$opt" in
-           i) mycase="-i " ;;
-           *) echo "$usage"; return ;;
-        esac
-    done
-    shift $(( $OPTIND - 1 ))
-    if [ "$#" -lt 1 ]; then
-        echo "$usage"
-        return;
-    fi
-    find . -type f -name "${2:-*}" -print0 | \
-xargs -0 egrep --color=always -sn ${case} "$1" 2>&- | more
-
-}
-
-
+# Swap 2 filenames around, if they exist (from Uzi's bashrc).
 function swap()
-{ # Swap 2 filenames around, if they exist (from Uzi's bashrc).
+{ 
     local TMPFILE=tmp.$$
 
     [ $# -ne 2 ] && echo "swap: 2 arguments needed" && return 1
@@ -303,15 +267,9 @@ function extract()      # Handy Extract Program
     fi
 }
 
-
-# Creates an archive (*.tar.gz) from given directory.
-function maketar() { tar cvzf "${1%%/}.tar.gz"  "${1%%/}/"; }
-
-# Create a ZIP archive of a file or folder.
-function makezip() { zip -r "${1%%/}.zip" "$1" ; }
-
 # Make your directories and files access rights sane.
 function sanitize() { chmod -R u=rwX,g=rX,o= "$@" ;}
+
 
 #-------------------------------------------------------------
 # Process/system related functions:
@@ -321,64 +279,6 @@ function sanitize() { chmod -R u=rwX,g=rX,o= "$@" ;}
 function my_ps() { ps $@ -u $USER -o pid,%cpu,%mem,bsdtime,command ; }
 function pp() { my_ps f | awk '!/awk/ && $0~var' var=${1:-".*"} ; }
 
-
-function killps()   # kill by process name
-{
-    local pid pname sig="-TERM"   # default signal
-    if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
-        echo "Usage: killps [-SIGNAL] pattern"
-        return;
-    fi
-    if [ $# = 2 ]; then sig=$1 ; fi
-    for pid in $(my_ps| awk '!/awk/ && $0~pat { print $1 }' pat=${!#} )
-    do
-        pname=$(my_ps | awk '$1~var { print $5 }' var=$pid )
-        if ask "Kill process $pid <$pname> with signal $sig?"
-            then kill $sig $pid
-        fi
-    done
-}
-
-function mydf()         # Pretty-print of 'df' output.
-{                       # Inspired by 'dfc' utility.
-    for fs ; do
-
-        if [ ! -d $fs ]
-        then
-          echo -e $fs" :No such file or directory" ; continue
-        fi
-
-        local info=( $(command df -P $fs | awk 'END{ print $2,$3,$5 }') )
-        local free=( $(command df -Pkh $fs | awk 'END{ print $4 }') )
-        local nbstars=$(( 20 * ${info[1]} / ${info[0]} ))
-        local out="["
-        for ((j=0;j<20;j++)); do
-            if [ ${j} -lt ${nbstars} ]; then
-               out=$out"*"
-            else
-               out=$out"-"
-            fi
-        done
-        out=${info[2]}" "$out"] ("$free" free on "$fs")"
-        echo -e $out
-    done
-}
-
-
-function ii()   # Get current host related info.
-{
-    echo -e "\nYou are logged on ${BRed}$HOST"
-    echo -e "\n${BRed}Additionnal information:$NC " ; uname -a
-    echo -e "\n${BRed}Users logged on:$NC " ; w -hs |
-             cut -d " " -f1 | sort | uniq
-    echo -e "\n${BRed}Current date :$NC " ; date
-    echo -e "\n${BRed}Machine stats :$NC " ; uptime
-    echo -e "\n${BRed}Memory stats :$NC " ; free
-    echo -e "\n${BRed}Diskspace :$NC " ; mydf / $HOME
-    echo -e "\n${BRed}Local IP Address :$NC" ; my_ip
-    echo -e "\n${BRed}Open connections :$NC "; netstat -pan --inet;
-    echo
-}
 
 #-------------------------------------------------------------
 # Misc utilities:
@@ -401,13 +301,6 @@ function ask()          # See 'killps' for example of use.
         y*|Y*) return 0 ;;
         *) return 1 ;;
     esac
-}
-
-function corename()   # Get name of app that created a corefile.
-{
-    for file ; do
-        echo -n $file : ; gdb --core=$file --batch | head -1
-    done
 }
 
 
@@ -470,28 +363,7 @@ complete -f -o default -X '!*.+(ps|PS)'  gs ghostview ps2pdf ps2ascii
 complete -f -o default -X \
 '!*.+(dvi|DVI)' dvips dvipdf xdvi dviselect dvitype
 complete -f -o default -X '!*.+(pdf|PDF)' acroread pdf2ps
-complete -f -o default -X '!*.@(@(?(e)ps|?(E)PS|pdf|PDF)?\
-(.gz|.GZ|.bz2|.BZ2|.Z))' gv ggv
-complete -f -o default -X '!*.texi*' makeinfo texi2dvi texi2html texi2pdf
 complete -f -o default -X '!*.tex' tex latex slitex
-complete -f -o default -X '!*.lyx' lyx
-complete -f -o default -X '!*.+(htm*|HTM*)' lynx html2ps
-complete -f -o default -X \
-'!*.+(doc|DOC|xls|XLS|ppt|PPT|sx?|SX?|csv|CSV|od?|OD?|ott|OTT)' soffice
-
-# Multimedia
-complete -f -o default -X \
-'!*.+(gif|GIF|jp*g|JP*G|bmp|BMP|xpm|XPM|png|PNG)' xv gimp ee gqview
-complete -f -o default -X '!*.+(mp3|MP3)' mpg123 mpg321
-complete -f -o default -X '!*.+(ogg|OGG)' ogg123
-complete -f -o default -X \
-'!*.@(mp[23]|MP[23]|ogg|OGG|wav|WAV|pls|\
-m3u|xm|mod|s[3t]m|it|mtm|ult|flac)' xmms
-complete -f -o default -X '!*.@(mp?(e)g|MP?(E)G|wma|avi|AVI|\
-asf|vob|VOB|bin|dat|vcd|ps|pes|fli|viv|rm|ram|yuv|mov|MOV|qt|\
-QT|wmv|mp3|MP3|ogg|OGG|ogm|OGM|mp4|MP4|wav|WAV|asx|ASX)' xine
-
-
 
 complete -f -o default -X '!*.pl'  perl perl5
 
@@ -686,9 +558,3 @@ _killall()
 
 complete -F _killall killall killps
 
-
-
-# Local Variables:
-# mode:shell-script
-# sh-shell:bash
-# End:
