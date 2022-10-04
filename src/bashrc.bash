@@ -203,10 +203,9 @@ function xtitle()
     esac
 }
 
-
 # Aliases that use xtitle
-alias top='xtitle Processes on $HOST && top'
-alias make='xtitle Making $(basename $PWD) ; make'
+alias top='xtitle Processes on $HOST && top ; xtitle'
+alias make='xtitle Making $(basename $PWD) ; make ; xtitle'
 
 # .. and functions
 function man()
@@ -214,6 +213,7 @@ function man()
     for i ; do
         xtitle The $(basename $1|tr -d .[:digit:]) manual
         command man -a "$i"
+        xtitle
     done
 }
 
