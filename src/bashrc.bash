@@ -141,6 +141,7 @@ alias df='df -kTh'
 #-------------------------------------------------------------
 # The 'ls' family (this assumes you use a recent GNU ls).
 #-------------------------------------------------------------
+
 # Add colors for filetype and  human-readable sizes by default on 'ls':
 alias ls='ls -h -G'
 alias lx='ls -lXB'         #  Sort by extension.
@@ -217,6 +218,39 @@ function man()
     done
 }
 
+
+#-------------------------------------------------------------
+# Starting SSH-Agent and adding keys on opening bash
+#-------------------------------------------------------------
+
+SSH_ENV="$HOME/.ssh/env"
+
+function start_agent {
+     echo "Initialising new SSH agent..."
+     /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
+     echo succeeded
+     chmod 600 "${SSH_ENV}"
+     . "${SSH_ENV}" > /dev/null
+     /usr/bin/ssh-add;
+}
+
+# Source SSH settings, if applicable
+
+if [ -f "${SSH_ENV}" ]; then
+     . "${SSH_ENV}" > /dev/null
+     ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
+         start_agent;
+     }
+else
+     start_agent;
+fi
+/usr/bin/ssh-add -K $HOME/.ssh/id_github; # Up to Big Sur
+#/usr/bin/ssh-add --apple-use-keychain  $HOME/.ssh/id_github; # From Monterey onwards
+     
+# I see room for improvements, i.e. detecting the correct syntax automatically, 
+# adding all id's automatically or letting the user configure here,
+# which identities to add and of course checking if an id is already
+# present before adding it again
 
 
 #-------------------------------------------------------------
