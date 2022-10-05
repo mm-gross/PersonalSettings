@@ -12,9 +12,27 @@ Also this file itself of course is also incomplete.
 
 # General stuff
 
-- Is it possible to sense if we're in dark mode
+Is it possible to sense if we're in dark mode
 (or more general if we have a dark or light background) and adjust the colors
-of bash an vim accordingly?
+of bash an vim accordingly? E.g. what is light blue on a dark background should
+become dark blue on a light background
+
+Yes, there is:
+
+> Don't think there's a cocoa way of detecting it yet, however you can use `defaults read` to check whether or not OSX is in dark mode.
+>
+>    defaults read -g AppleInterfaceStyle
+>
+> Either returns `Dark` (dark mode) or returns domain pair does not exist.
+
+Now, I still need to figure out / decide, wether to check for dark mode
+only when starting a new shell or if it's feasible to check every time a
+prompt is displayed.
+
+Also, a thought that I just had: When switching to dark mode, the standard
+text color of black is automagically changed to white by the OS, even of
+text, that has it specifically set to black. Maybe there's a way to use
+that mechanism for other colors too?
 
 # Deployment
 
