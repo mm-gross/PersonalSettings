@@ -12,17 +12,21 @@ Also this file itself of course is also incomplete.
 
 # General stuff
 
+- Is it possible to sense if we're in dark mode
+(or more general if we have a dark or light background) and adjust the colors
+of bash an vim accordingly?
+
 # Deployment
 
-The deployment script is a joke at this point and whenever I need to,
+- The deployment script is a joke at this point and whenever I need to,
 I just copy and rename all the source files instead of using the script.
 
-In the future, I'd like to have a script running interactively and doing
+- In the future, I'd like to have a script running interactively and doing
 everything that needs to be done when setting up a new machine from scratch
 
 # Software installation
 
-Right now, this won't install any software whatsoever
+- Right now, this won't install any software whatsoever
 
 # Bash
 
