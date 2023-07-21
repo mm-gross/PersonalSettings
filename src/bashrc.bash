@@ -244,7 +244,7 @@ if [ -f "${SSH_ENV}" ]; then
 else
      start_agent;
 fi
-/usr/bin/ssh-add -K $HOME/.ssh/id_github; # Up to Big Sur
+/usr/bin/ssh-add --apple-use-keychain $HOME/.ssh/id_github; # Up to Big Sur
 #/usr/bin/ssh-add --apple-use-keychain  $HOME/.ssh/id_github; # From Monterey onwards
      
 # I see room for improvements, i.e. detecting the correct syntax automatically, 
