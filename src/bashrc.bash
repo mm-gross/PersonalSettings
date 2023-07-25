@@ -101,7 +101,7 @@ export HISTIGNORE="&:bg:fg:ll:h"
 export HISTTIMEFORMAT="$(echo -e ${BCyan})[%d/%m %H:%M:%S]$(echo -e ${NC}) "
 export HISTCONTROL=ignoredups
 export HOSTFILE=$HOME/.hosts    # Put a list of remote hosts in ~/.hosts
-export PATH="/usr/local/opt/ruby/bin:/usr/local/lib/ruby/gems/3.1.0/bin:$PATH"
+export PATH="/opt/homebrew/bin:/usr/local/opt/ruby/bin:/usr/local/lib/ruby/gems/3.1.0/bin:$PATH"
 
 #============================================================
 #
