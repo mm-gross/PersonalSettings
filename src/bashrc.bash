@@ -114,7 +114,7 @@ export PATH="/opt/homebrew/bin:/usr/local/opt/ruby/bin:/usr/local/lib/ruby/gems/
 #============================================================
 
 #-------------------
-# Personnal Aliases
+# Personal Aliases
 #-------------------
 
 alias rm='rm -i'
@@ -167,7 +167,7 @@ export PAGER=less
 export LESSCHARSET='latin1'
 export LESSOPEN='|/usr/bin/lesspipe.sh %s 2>&-'
                 # Use this if lesspipe.sh exists.
-export LESS='-i -N -w  -z-4 -g -e -M -X -F -R -P%t?f%f \
+export LESS='-i -N -w  -z-4 -g -e -M -X -F -r -P%t?f%f \
 :stdin .?pb%pb\%:?lbLine %lb:?bbByte %bb:-...'
 
 # LESS man page colors (makes Man pages more readable).
@@ -211,9 +211,13 @@ alias make='xtitle Making $(basename $PWD) ; make ; xtitle'
 # .. and functions
 function man()
 {
+    local width
+    width=$((COLUMNS-8))
+    echo $width
     for i ; do
         xtitle The $(basename $1|tr -d .[:digit:]) manual
-        command man -a "$i"
+        MANWIDTH=$width;/usr/bin/man "$i"
+        #command man -a "$i"
         xtitle
     done
 }
