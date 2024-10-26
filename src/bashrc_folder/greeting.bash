@@ -1,5 +1,3 @@
-
-
 function greeting_info() {
     if [ ${_BASHRC_OPTION["chatty"]} = true ]; then
         echo -ne "$1"

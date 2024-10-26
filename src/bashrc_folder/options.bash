@@ -7,7 +7,7 @@ ulimit -S -c 0      # Don't want coredumps.
 if [ ${_BASHRC_OPTION["notify"]} = true ]; then
     set -o notify
 else
-    set +o noclobber
+    set +o notify
 fi
 
 if [ ${_BASHRC_OPTION["noclobber"]} = true ]; then
