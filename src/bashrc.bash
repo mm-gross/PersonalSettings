@@ -216,7 +216,7 @@ function man()
     echo $width
     for i ; do
         xtitle The $(basename $1|tr -d .[:digit:]) manual
-        MANWIDTH=$width;/usr/bin/man "$i"
+        MANWIDTH=$width /usr/bin/man "$i"
         #command man -a "$i"
         xtitle
     done
